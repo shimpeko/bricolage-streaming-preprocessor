@@ -1,6 +1,7 @@
 package org.bricolages.streaming;
 import org.bricolages.streaming.filter.*;
 import org.bricolages.streaming.event.*;
+import org.bricolages.streaming.log.*;
 import org.bricolages.streaming.s3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.io.BufferedReader;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Preprocessor implements EventHandlers {
     final EventQueue eventQueue;
+    final LogQueue logQueue;
     final S3Agent s3;
     final ObjectMapper mapper;
     final ObjectFilterFactory filterFactory;
@@ -189,6 +191,7 @@ public class Preprocessor implements EventHandlers {
             log.debug("src: {}, dest: {}, in: {}, out: {}", src.urlString(), dest.urlString(), result.inputRows, result.outputRows);
             result.succeeded();
             repos.save(result);
+            logQueue.send(FakeS3Event.forFilterResult(result));
             eventQueue.deleteAsync(event);
         }
         catch (S3IOException | IOException ex) {

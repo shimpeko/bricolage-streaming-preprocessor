@@ -96,4 +96,16 @@ public class SQSQueue implements Iterable<Message> {
             throw new SQSException(msg);
         }
     }
+
+    public SendMessageResult sendMessage(String body) {
+        try {
+            log.info("sendMessage queue={}", queueUrl);
+            return queue.sendMessage(queueUrl, body);
+        }
+        catch (AmazonClientException ex) {
+            String msg = "sendMessage failed: " + ex.getMessage();
+            log.error(msg);
+            throw new SQSException(msg);
+        }
+    }
 }
